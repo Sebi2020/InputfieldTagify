@@ -1,0 +1,71 @@
+<?php
+// Copyright (c) 2019 Sebastian Tilders. All rights reserved.
+// This code is licensed under the GPLv3 and can be found in the LICENSE.md file.
+// THIS CODE IS DISTRIBUTED WITH NO WARRANTY AT ALL. USE IT AT YOUR OWN RISK.
+namespace ProcessWire;
+class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
+
+	private $jsfile = "";
+	private $cssfile = "";
+	public static function getModuleInfo() {
+		return array(
+			'title' => __('Inputfield Tagify'),
+			'summary' => __('Provides a tagify input for ProcessWire'),
+			'author' => 'Sebastian Tilders',
+			'icon' => 'tags',
+			'requires' => 'ProcessWire>=3.0',
+			version => 1,
+			autoload => false,
+			singular => false);
+	}
+
+	private function getAssetUrl($file) {
+		$url = $this->wire('config')->url($this) . $file;
+		return $url;
+	}
+
+	public function ___render()  {
+		$this->addClass("tagify-ip");
+		$this->config->styles->add($this->getAssetUrl($this->cssfile));
+		$this->config->styles->add($this->getAssetUrl("css/pwfixes.css"));
+		$val = implode(", ", $this->val());
+		$content = "<input class=\"{$this->class()}\" name=\"{$this->name()}\" value=\"{$val}\"></input>";
+		$content .= '<script type="text/javascript" src="';
+		$content .= $this->getAssetUrl($this->jsfile);
+		$content .= '"></script>';
+		$content .= '<script type="text/javascript">
+						var $input = document.querySelector(".tagify-ip");
+						var $tagify = new Tagify($input,{delimiters:[","]});
+					</script>';
+		return $content;
+	}
+
+	public function init() {
+		parent::init();
+		$config = $this->wire('modules')->getModuleConfigData($this);
+		$this->jsfile = $config['jsfile'] == "" ? "scripts/tagify.min.js" : $config['jsfile'];
+		$this->cssfile = $config['cssfile'] == "" ? "css/tagify.css" : $config['cssfile'];
+	} 
+
+	public function ___processInput($input) {
+		$values = json_decode($input[$this->name],true);
+		$procInput = array();
+		$prevValue = $this->value;
+		foreach($values as $value) {
+				array_push($procInput, $value['value']);
+		}
+		if($prevValue !== $procInput) {
+			$this->trackChange('value',$prevValue, $this->value);
+			$parent = $this->getParent();
+			$parent->trackChange('value', $this->name);
+			$this->setAttribute('value', $procInput);
+		}
+		return $this;
+	}
+
+	public function renderReady() {
+		parent::renderReady();
+		$this->addClass("tagify-input");
+	}
+}
+?> 

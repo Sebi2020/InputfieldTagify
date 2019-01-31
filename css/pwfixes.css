@@ -1,0 +1,13 @@
+// Copyright (c) 2019 Sebastian Tilders. All rights reserved
+// Licensed under the terms 
+.tagify.uk-input .tagify-input .tagify-ip {
+	height:auto;
+}
+tag {
+	height: auto !important;
+	box-shadow: 0px 0px 0px 32px #e5e5e5 inset;
+}
+
+tag:hover {
+	box-shadow: 0px 0px 0px 32px #d3e2e2 inset
+}
