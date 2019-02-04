@@ -25,10 +25,16 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 		return $url;
 	}
 
+	private static function quote($val) {
+		return '"' . $val . '"';
+	}
+
 	public function ___render()  {
 		$this->addClass("tagify-ip");
 		$this->config->styles->add($this->getAssetUrl($this->attr('cssfile')));
 		$this->config->styles->add($this->getAssetUrl("css/pwfixes.css"));
+		$delim_str = implode(", ", array_map(array('self','quote'), $this->attr('delimiter')));
+		$this->notes = sprintf($this->_('Use %s as a delimiter(s).'), $delim_str);
 		$val = implode(", ", $this->val());
 		$content = "<input id=\"{$this->id()}\" class=\"{$this->class()}\" name=\"{$this->name()}\" value=\"{$val}\"></input>";
 		$content .= '<script type="text/javascript" src="';
@@ -36,7 +42,7 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 		$content .= '"></script>';
 		$content .= '<script type="text/javascript">
 						var $input = document.querySelector(".tagify-ip");
-						var $tagify = new Tagify($input,{delimiters:[","]});
+						var $tagify = new Tagify($input,{delimiters:' . json_encode($this->attr('delimiter'),true) . '});
 					</script>';
 		return $content;
 	}
@@ -101,7 +107,7 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 				'label' => $this->_('Delimiters'),
 			    'type' => 'InputfieldAsmSelect',
 			    'value' => $this->attr('delimiter'),
-			    'options' => array('Comma','Space','Semicolon')
+			    'options' => array(',' => 'Comma',' ' => 'Space',';' => 'Semicolon')
 			)
 		);
 	   $wrapper->add($fields);
