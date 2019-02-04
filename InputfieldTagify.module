@@ -5,8 +5,9 @@
 namespace ProcessWire;
 class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 
-	private $jsfile = "";
-	private $cssfile = "";
+	protected  $jsfile = null;
+	protected $cssfile = null;
+	protected $delimiter = null;
 	public static function getModuleInfo() {
 		return array(
 			'title' => __('Inputfield Tagify'),
@@ -26,12 +27,12 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 
 	public function ___render()  {
 		$this->addClass("tagify-ip");
-		$this->config->styles->add($this->getAssetUrl($this->cssfile));
+		$this->config->styles->add($this->getAssetUrl($this->attr('cssfile')));
 		$this->config->styles->add($this->getAssetUrl("css/pwfixes.css"));
 		$val = implode(", ", $this->val());
-		$content = "<input class=\"{$this->class()}\" name=\"{$this->name()}\" value=\"{$val}\"></input>";
+		$content = "<input id=\"{$this->id()}\" class=\"{$this->class()}\" name=\"{$this->name()}\" value=\"{$val}\"></input>";
 		$content .= '<script type="text/javascript" src="';
-		$content .= $this->getAssetUrl($this->jsfile);
+		$content .= $this->getAssetUrl($this->attr('jsfile'));
 		$content .= '"></script>';
 		$content .= '<script type="text/javascript">
 						var $input = document.querySelector(".tagify-ip");
@@ -42,9 +43,7 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 
 	public function init() {
 		parent::init();
-		$config = $this->wire('modules')->getModuleConfigData($this);
-		$this->jsfile = $config['jsfile'] == "" ? "scripts/tagify.min.js" : $config['jsfile'];
-		$this->cssfile = $config['cssfile'] == "" ? "css/tagify.css" : $config['cssfile'];
+		return $this;
 	} 
 
 	public function ___processInput($input) {
@@ -63,9 +62,52 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 		return $this;
 	}
 
+	public function __construct() {
+			parent::__construct();
+			$this->setAttribute('jsfile', 'scripts/tagify.min.js');
+			$this->setAttribute('cssfile', 'css/tagify.css');
+			$this->setAttribute('delimiter', array(0));
+	}
+
 	public function renderReady() {
 		parent::renderReady();
 		$this->addClass("tagify-input");
 	}
+
+	public function ___getConfigInputFields() {
+		$inputfields = parent::___getConfigInputFields();
+		$wrapper = $this->wire('modules')->get('InputfieldFieldset'); 
+		$wrapper->label = "Tagify";
+		$wrapper->collapsed = true;
+		$fields = array(
+			array(
+			'name' =>  'jsfile',
+		    'label' => $this->_('Alternate Javascript File'),
+			'type' => 'InputfieldText',
+			'description' => $this->_('Specify an alternate path for the Tagify js file.'),
+			'value' => $this->attr('jsfile'),
+			'notes' => $this->_('The path should be relative to the inputfield module path')
+			),
+			array(
+				'name' => 'cssfile',
+				'label' => $this->_('Alternate CSS File'),
+				'type' => 'InputfieldText',
+				'value' => $this->attr('cssfile'),
+				'description' => $this->_('Specify an alternate path for the Tagify css file.'),
+				'notes' => $this->_('The path should be relative to the inputfield module path')
+			),
+			array(
+				'name' => 'delimiter',
+				'label' => $this->_('Delimiters'),
+			    'type' => 'InputfieldAsmSelect',
+			    'value' => $this->attr('delimiter'),
+			    'options' => array('Comma','Space','Semicolon')
+			)
+		);
+	   $wrapper->add($fields);
+	   $inputfields->append($wrapper);
+	   return $inputfields;
+	}
+
 }
 ?> 
