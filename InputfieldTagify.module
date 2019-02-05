@@ -14,8 +14,8 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 			'summary' => __('Provides a tagify input for ProcessWire'),
 			'author' => 'Sebastian Tilders',
 			'icon' => 'tags',
-			'requires' => 'ProcessWire>=3.0',
-			version => 1,
+			'requires' => 'ProcessWire>=3.0,InputfieldAsmSelect,InputfieldCheckbox, InputfieldText',
+			version => 2,
 			autoload => false,
 			singular => false);
 	}
@@ -33,8 +33,10 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 		$this->addClass("tagify-ip");
 		$this->config->styles->add($this->getAssetUrl($this->attr('cssfile')));
 		$this->config->styles->add($this->getAssetUrl("css/pwfixes.css"));
-		$delim_str = implode(", ", array_map(array('self','quote'), $this->attr('delimiter')));
-		$this->notes = sprintf($this->_('Use %s as a delimiter(s).'), $delim_str);
+		if($this->attr('add_note')) {
+			$delim_str = implode(", ", array_map(array('self','quote'), $this->attr('delimiter')));
+			$this->notes = sprintf($this->_('Use %s as a delimiter(s).'), $delim_str);
+		}
 		$val = implode(", ", $this->val());
 		$content = "<input id=\"{$this->id()}\" class=\"{$this->class()}\" name=\"{$this->name()}\" value=\"{$val}\"></input>";
 		$content .= '<script type="text/javascript" src="';
@@ -42,7 +44,8 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 		$content .= '"></script>';
 		$content .= '<script type="text/javascript">
 						var $input = document.querySelector(".tagify-ip");
-						var $tagify = new Tagify($input,{delimiters:' . json_encode($this->attr('delimiter'),true) . '});
+						var $tagify = new Tagify($input,{delimiters:' . json_encode($this->attr('delimiter'),true) . ', whitelist:' . json_encode($this->attr('complete')) .
+						'})
 					</script>';
 		return $content;
 	}
@@ -73,6 +76,8 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 			$this->setAttribute('jsfile', 'scripts/tagify.min.js');
 			$this->setAttribute('cssfile', 'css/tagify.css');
 			$this->setAttribute('delimiter', array(0));
+			$this->setAttribute('complete', array());
+			$this->setAttribute('add_note',false);
 	}
 
 	public function renderReady() {
@@ -84,30 +89,56 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 		$inputfields = parent::___getConfigInputFields();
 		$wrapper = $this->wire('modules')->get('InputfieldFieldset'); 
 		$wrapper->label = "Tagify";
+		$wrapper->icon = 'tags';
 		$wrapper->collapsed = true;
 		$fields = array(
 			array(
-			'name' =>  'jsfile',
-		    'label' => $this->_('Alternate Javascript File'),
-			'type' => 'InputfieldText',
-			'description' => $this->_('Specify an alternate path for the Tagify js file.'),
-			'value' => $this->attr('jsfile'),
-			'notes' => $this->_('The path should be relative to the inputfield module path')
-			),
-			array(
-				'name' => 'cssfile',
-				'label' => $this->_('Alternate CSS File'),
-				'type' => 'InputfieldText',
-				'value' => $this->attr('cssfile'),
-				'description' => $this->_('Specify an alternate path for the Tagify css file.'),
-				'notes' => $this->_('The path should be relative to the inputfield module path')
+				'name' => 'complete',
+				'label' => $this->_('Autocomplete'),
+				'description' => $this->_('Add additional tags which should be suggested while adding tags'),
+				'type' => 'InputfieldTagify',
+				'icon' => 'list',
+				'value' => $this->attr('complete'),
+				'delimiter' => [' ', ',']
 			),
 			array(
 				'name' => 'delimiter',
 				'label' => $this->_('Delimiters'),
+				'icon' => 'terminal',
 			    'type' => 'InputfieldAsmSelect',
 			    'value' => $this->attr('delimiter'),
-			    'options' => array(',' => 'Comma',' ' => 'Space',';' => 'Semicolon')
+			    'options' => array(',' => 'Comma',' ' => 'Space',';' => 'Semicolon'),
+			    'columnWidth' => '50'
+			),
+			array(
+				'name' => 'add_note',
+				'label' => $this->_('Add Note'),
+				'icon' => 'question-circle',
+				'description' => $this->_('Check this to show a note about the configured notes'),
+				'notes' => $this->_('This will override previous manually setted notes'),
+				'type' => 'InputfieldCheckbox',
+				'checked' => $this->attr('add_note'),
+				'columnWidth' => '50'
+			),
+			array(
+				'name' =>  'jsfile',
+			    'label' => $this->_('Alternate Javascript File'),
+				'type' => 'InputfieldText',
+				'icon' => 'file-text-o',
+				'description' => $this->_('Specify an alternate path for the Tagify js file.'),
+				'value' => $this->attr('jsfile'),
+				'notes' => $this->_('The path should be relative to the inputfield module path'),
+				'collapsed' => true
+			),
+			array(
+				'name' => 'cssfile',
+				'label' => $this->_('Alternate CSS File'),
+				'icon' => 'file-text-o',
+				'type' => 'InputfieldText',
+				'value' => $this->attr('cssfile'),
+				'description' => $this->_('Specify an alternate path for the Tagify css file.'),
+				'notes' => $this->_('The path should be relative to the inputfield module path'),
+				'collapsed' => true
 			)
 		);
 	   $wrapper->add($fields);
