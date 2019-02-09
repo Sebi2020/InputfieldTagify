@@ -38,7 +38,7 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 		if($maxTags == 0) $maxTags = '"infinity"';
 		if($this->attr('add_note')) {
 			$delim_str = implode(", ", array_map(array('self','quote'), $this->attr('delimiter')));
-			$this->notes = sprintf($this->_('Use %s as a delimiter(s).'), $delim_str);
+			$this->notes = sprintf($this->_('Use %s to separate tag(s).'), $delim_str);
 			if($maxTags > 0) {
 				$this->notes .= " ";
 				$this->notes .= sprintf($this->_("You can enter a maximum of %d tag(s)."), $maxTags);
@@ -81,7 +81,7 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 			parent::__construct();
 			$this->setAttribute('jsfile', 'scripts/tagify.min.js');
 			$this->setAttribute('cssfile', 'css/tagify.css');
-			$this->setAttribute('delimiter', array(0));
+			$this->setAttribute('delimiter', array(","));
 			$this->setAttribute('complete', array());
 			$this->setAttribute('add_note',false);
 			$this->setAttribute('maxTags', 0);
@@ -116,7 +116,7 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 				'type' => 'InputfieldInteger',
 				'value' => $this->attr('maxTags'),
 				'description' => $this->_('Limit tag count to this number'),
-				'notes' => $this->_("Use zero if you don't want to limit the number of tags"),
+				'notes' => $this->_("Use zero if you don't want to limit the number of tags."),
 				'columnWidth' => '33',
 				'zeroNotNull' => 1,
 				'min' => '0',
@@ -126,7 +126,7 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 				'name' => 'add_note',
 				'label' => $this->_('Add Note'),
 				'icon' => 'question-circle',
-				'description' => $this->_('Check this to show a note about the configured notes'),
+				'description' => $this->_('Append a note to the inputfield of the form "Use ",",... to separate tag(s). You can enter a maximum of n tag(s).'),
 				'notes' => $this->_('This will override previous manually setted notes'),
 				'type' => 'InputfieldCheckbox',
 				'checked' => $this->attr('add_note'),
