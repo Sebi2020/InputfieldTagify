@@ -14,8 +14,8 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 			'summary' => __('Provides a tagify input for ProcessWire'),
 			'author' => 'Sebastian Tilders',
 			'icon' => 'tags',
-			'requires' => 'ProcessWire>=3.0,InputfieldAsmSelect,InputfieldCheckbox, InputfieldText',
-			version => 2,
+			'requires' => 'ProcessWire>=3.0,InputfieldAsmSelect,InputfieldCheckbox, InputfieldText, InputfieldInteger',
+			version => 10,
 			autoload => false,
 			singular => false);
 	}
@@ -33,11 +33,17 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 		$this->addClass("tagify-ip");
 		$this->config->styles->add($this->getAssetUrl($this->attr('cssfile')));
 		$this->config->styles->add($this->getAssetUrl("css/pwfixes.css"));
+		$val = implode(", ", $this->val());
+		$maxTags = $this->attr('maxTags');
+		if($maxTags == 0) $maxTags = '"infinity"';
 		if($this->attr('add_note')) {
 			$delim_str = implode(", ", array_map(array('self','quote'), $this->attr('delimiter')));
 			$this->notes = sprintf($this->_('Use %s as a delimiter(s).'), $delim_str);
+			if($maxTags > 0) {
+				$this->notes .= " ";
+				$this->notes .= sprintf($this->_("You can enter a maximum of %d tag(s)."), $maxTags);
+			}
 		}
-		$val = implode(", ", $this->val());
 		$content = "<input id=\"{$this->id()}\" class=\"{$this->class()}\" name=\"{$this->name()}\" value=\"{$val}\"></input>";
 		$content .= '<script type="text/javascript" src="';
 		$content .= $this->getAssetUrl($this->attr('jsfile'));
@@ -45,8 +51,8 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 		$content .= '<script type="text/javascript">
 						var $input = document.querySelector(".tagify-ip");
 						var $tagify = new Tagify($input,{delimiters:' . json_encode($this->attr('delimiter'),true) . ', whitelist:' . json_encode($this->attr('complete')) .
-						'})
-					</script>';
+						     ', maxTags:' . $maxTags .'});
+						</script>';
 		return $content;
 	}
 
@@ -78,6 +84,7 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 			$this->setAttribute('delimiter', array(0));
 			$this->setAttribute('complete', array());
 			$this->setAttribute('add_note',false);
+			$this->setAttribute('maxTags', 0);
 	}
 
 	public function renderReady() {
@@ -108,7 +115,20 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 			    'type' => 'InputfieldAsmSelect',
 			    'value' => $this->attr('delimiter'),
 			    'options' => array(',' => 'Comma',' ' => 'Space',';' => 'Semicolon'),
-			    'columnWidth' => '50'
+			    'columnWidth' => '33'
+			),
+			array(
+				'name' => 'maxTags',
+				'label' => 'Maximum tag count',
+				'icon' =>'number',
+				'type' => 'InputfieldInteger',
+				'value' => $this->attr('maxTags'),
+				'description' => $this->_('Limit tag count to this number'),
+				'notes' => $this->_("Use zero if you don't want to limit the number of tags"),
+				'columnWidth' => '33',
+				'zeroNotNull' => 1,
+				'min' => '0',
+				'inputType' => 'number'
 			),
 			array(
 				'name' => 'add_note',
@@ -118,7 +138,7 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 				'notes' => $this->_('This will override previous manually setted notes'),
 				'type' => 'InputfieldCheckbox',
 				'checked' => $this->attr('add_note'),
-				'columnWidth' => '50'
+				'columnWidth' => '33'
 			),
 			array(
 				'name' =>  'jsfile',
@@ -145,6 +165,5 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 	   $inputfields->append($wrapper);
 	   return $inputfields;
 	}
-
 }
 ?> 
