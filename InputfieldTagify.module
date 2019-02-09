@@ -15,9 +15,9 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 			'author' => 'Sebastian Tilders',
 			'icon' => 'tags',
 			'requires' => 'ProcessWire>=3.0,InputfieldAsmSelect,InputfieldCheckbox, InputfieldText, InputfieldInteger',
-			version => 10,
-			autoload => false,
-			singular => false);
+			'version' => 10,
+			'autoload' => false,
+			'singular' => false);
 	}
 
 	private function getAssetUrl($file) {
@@ -61,7 +61,7 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 		return $this;
 	} 
 
-	public function ___processInput($input) {
+	public function ___processInput(WireInputData $input) {
 		$values = json_decode($input[$this->name],true);
 		$procInput = array();
 		$prevValue = $this->value;
@@ -87,9 +87,9 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 			$this->setAttribute('maxTags', 0);
 	}
 
-	public function renderReady() {
-		parent::renderReady();
+	public function renderReady(Inputfield $parent = NULL, $renderValueMode = false) {
 		$this->addClass("tagify-input");
+		parent::renderReady();
 	}
 
 	public function ___getConfigInputFields() {

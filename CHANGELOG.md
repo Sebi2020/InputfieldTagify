@@ -1,4 +1,9 @@
 # Changelog
+## [Unreleased]
+### Fixed
+- Warnings about incompatible method declarations
+- Wrong defintion of `getModuleInfo()` Array
+
 ## [0.1.0-pre] - 19-02-09
 ### Added
 + Configurable limits for tags (min,max)
