@@ -100,17 +100,9 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 		$wrapper->collapsed = true;
 		$fields = array(
 			array(
-				'name' => 'complete',
-				'label' => $this->_('Autocomplete'),
-				'description' => $this->_('Add additional tags which should be suggested while adding tags'),
-				'type' => 'InputfieldTagify',
-				'icon' => 'list',
-				'value' => $this->attr('complete'),
-				'delimiter' => [' ', ',']
-			),
-			array(
 				'name' => 'delimiter',
 				'label' => $this->_('Delimiters'),
+				'description' => $this->_('Select which delimiters should be allowed to separate tags'),
 				'icon' => 'terminal',
 			    'type' => 'InputfieldAsmSelect',
 			    'value' => $this->attr('delimiter'),
@@ -119,8 +111,8 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 			),
 			array(
 				'name' => 'maxTags',
-				'label' => 'Maximum tag count',
-				'icon' =>'number',
+				'label' => 'Tag limit',
+				'icon' =>'lock',
 				'type' => 'InputfieldInteger',
 				'value' => $this->attr('maxTags'),
 				'description' => $this->_('Limit tag count to this number'),
@@ -139,6 +131,15 @@ class InputfieldTagify extends Inputfield implements InputfieldHasArrayValue {
 				'type' => 'InputfieldCheckbox',
 				'checked' => $this->attr('add_note'),
 				'columnWidth' => '33'
+			),
+			array(
+				'name' => 'complete',
+				'label' => $this->_('Autocomplete'),
+				'description' => $this->_('Add additional tags which should be suggested while adding tags'),
+				'type' => 'InputfieldTagify',
+				'icon' => 'list',
+				'value' => $this->attr('complete'),
+				'delimiter' => [' ', ',']
 			),
 			array(
 				'name' =>  'jsfile',

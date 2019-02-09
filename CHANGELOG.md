@@ -1,6 +1,11 @@
 # Changelog
 ## [Unreleased]
-+ Configurable limits for tags (min,max) 
+### Added
++ [19-02-08] Configurable limits for tags (min,max)
+
+### Changed
+* [19-02-08] Fieldorder in the configuration tab.
+* [19-02-08] Added tag limit display to auto-generated field note.
 
 ## [0.0.2] - 19-02-05
 ### Added
